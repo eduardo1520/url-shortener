@@ -1,16 +1,12 @@
-pub mod application;
-pub mod domain;
-pub mod infrastructure;
-pub mod web;
-
-use std::sync::Arc;
-
-use application::ShortenerService;
-use infrastructure::MemoryLinkRepository;
+mod code;
+mod repository;
+mod shortener;
+mod validation;
+mod web;
 
 pub async fn run() {
-    let repo = MemoryLinkRepository::new();
-    let service = Arc::new(ShortenerService::new(repo));
+    let repository = repository::MemoryRepository::new();
+    let service = std::sync::Arc::new(shortener::ShortenerService::new(repository));
     let app = web::router(service);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
@@ -19,5 +15,7 @@ pub async fn run() {
 
     println!("Servidor rodando em http://localhost:3000");
 
-    axum::serve(listener, app).await.expect("servidor encerrado com erro");
+    axum::serve(listener, app)
+        .await
+        .expect("servidor encerrado com erro");
 }

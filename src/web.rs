@@ -4,23 +4,36 @@ use axum::{
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
     response::Json,
+    routing::{get, post},
+    Router,
 };
+use serde::Deserialize;
+use tower_http::{cors::CorsLayer, services::ServeDir};
 
-use crate::application::{ShortenError, ShortenerService};
-use crate::infrastructure::MemoryLinkRepository;
+use crate::shortener::{ShortenError, ShortenerService};
 
-use super::dto::ShortenRequest;
+pub type AppState = Arc<ShortenerService>;
 
-pub type AppState = Arc<ShortenerService<MemoryLinkRepository>>;
+#[derive(Deserialize)]
+struct ShortenRequest {
+    url: String,
+}
 
-pub async fn hello() -> &'static str {
+pub fn router(state: AppState) -> Router {
+    Router::new()
+        .route("/", get(hello))
+        .route("/r/:code", get(redirect))
+        .route("/api/shorten", post(shorten))
+        .nest_service("/static", ServeDir::new("static"))
+        .layer(CorsLayer::permissive())
+        .with_state(state)
+}
+
+async fn hello() -> &'static str {
     "Hello, World!"
 }
 
-pub async fn redirect(
-    State(service): State<AppState>,
-    Path(code): Path<String>,
-) -> (StatusCode, HeaderMap) {
+async fn redirect(State(service): State<AppState>, Path(code): Path<String>) -> (StatusCode, HeaderMap) {
     let mut headers = HeaderMap::new();
 
     match service.resolve(&code) {
@@ -32,7 +45,7 @@ pub async fn redirect(
     }
 }
 
-pub async fn shorten(
+async fn shorten(
     State(service): State<AppState>,
     Json(payload): Json<ShortenRequest>,
 ) -> (StatusCode, Json<serde_json::Value>) {
