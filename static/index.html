@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Shortener</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center p-6 font-mono">
+
+  <div class="w-full max-w-lg">
+
+    <div class="mb-8">
+      <p class="text-xs text-zinc-500 uppercase tracking-widest mb-1">rust · axum · tokio</p>
+      <h1 class="text-2xl font-semibold tracking-tight">url shortener</h1>
+    </div>
+
+    <div class="flex gap-2 mb-2">
+      <input
+        id="url-input"
+        type="text"
+        placeholder="https://..."
+        class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
+      />
+      <button
+        onclick="shorten()"
+        class="bg-zinc-100 text-zinc-950 rounded-lg px-5 py-2.5 text-sm font-medium hover:bg-white transition-colors"
+      >
+        encurtar
+      </button>
+    </div>
+
+    <p id="error-msg" class="text-red-400 text-xs mb-4 hidden"></p>
+
+    <div id="result-box" class="hidden bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-6">
+      <p class="text-xs text-zinc-500 uppercase tracking-widest mb-2">código gerado</p>
+      <p id="result-code" class="text-4xl font-semibold tracking-widest text-zinc-100 mb-1"></p>
+      <p id="result-short" class="text-xs text-zinc-500 break-all mb-4"></p>
+      <button
+        onclick="copyCode()"
+        id="copy-btn"
+        class="flex items-center gap-1.5 text-xs border border-zinc-700 rounded-lg px-3 py-1.5 text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors"
+      >
+        <i class="ti ti-copy text-sm"></i> copiar link
+      </button>
+    </div>
+
+    <div id="history" class="hidden border-t border-zinc-800 pt-5">
+      <p class="text-xs text-zinc-500 uppercase tracking-widest mb-3">histórico da sessão</p>
+      <div id="history-list" class="flex flex-col gap-1"></div>
+    </div>
+
+  </div>
+
+  <script src="/static/js/principal.js"></script>
+</body>
+</html>
