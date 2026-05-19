@@ -1,18 +1,21 @@
-use crate::domain::{code, validation};
+use crate::{code, repository::MemoryRepository, validation};
 
-use super::{LinkRepository, ShortenError};
+#[derive(Debug, PartialEq, Eq)]
+pub enum ShortenError {
+    InvalidUrl,
+}
 
 pub struct ShortenResult {
     pub code: String,
 }
 
-pub struct ShortenerService<R: LinkRepository> {
-    repo: R,
+pub struct ShortenerService {
+    repository: MemoryRepository,
 }
 
-impl<R: LinkRepository> ShortenerService<R> {
-    pub fn new(repo: R) -> Self {
-        Self { repo }
+impl ShortenerService {
+    pub fn new(repository: MemoryRepository) -> Self {
+        Self { repository }
     }
 
     pub fn shorten(&self, url: &str) -> Result<ShortenResult, ShortenError> {
@@ -22,17 +25,17 @@ impl<R: LinkRepository> ShortenerService<R> {
 
         let code = loop {
             let candidate = code::generate();
-            if !self.repo.contains(&candidate) {
+            if !self.repository.contains(&candidate) {
                 break candidate;
             }
         };
 
-        self.repo.insert(code.clone(), url.to_string());
+        self.repository.insert(code.clone(), url.to_string());
 
         Ok(ShortenResult { code })
     }
 
     pub fn resolve(&self, code: &str) -> Option<String> {
-        self.repo.get(code)
+        self.repository.get(code)
     }
 }
